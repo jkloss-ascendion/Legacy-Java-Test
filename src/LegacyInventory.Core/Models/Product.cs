@@ -1,8 +1,5 @@
-using System;
-
 namespace LegacyInventory.Core.Models
 {
-    [Serializable]
     public class Product
     {
         public int Id { get; set; }
@@ -15,6 +12,6 @@ namespace LegacyInventory.Core.Models
 
         public int QuantityOnHand { get; set; }
 
-        public DateTime LastUpdated { get; set; }
+        public System.DateTime LastUpdated { get; set; }
     }
 }
