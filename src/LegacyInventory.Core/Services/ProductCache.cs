@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
 using LegacyInventory.Core.Models;
 
 namespace LegacyInventory.Core.Services
@@ -19,10 +19,9 @@ namespace LegacyInventory.Core.Services
 
         public void Save(IList<Product> products)
         {
-            using (var stream = File.Create(_cacheFile))
-            {
-                new BinaryFormatter().Serialize(stream, new List<Product>(products));
-            }
+            var list = new List<Product>(products);
+            var json = JsonSerializer.Serialize(list);
+            File.WriteAllText(_cacheFile, json);
         }
 
         public IList<Product> Load()
@@ -37,10 +36,9 @@ namespace LegacyInventory.Core.Services
                 return null;
             }
 
-            using (var stream = File.OpenRead(_cacheFile))
-            {
-                return (List<Product>)new BinaryFormatter().Deserialize(stream);
-            }
+            var json = File.ReadAllText(_cacheFile);
+            var list = JsonSerializer.Deserialize<List<Product>>(json);
+            return list;
         }
     }
 }

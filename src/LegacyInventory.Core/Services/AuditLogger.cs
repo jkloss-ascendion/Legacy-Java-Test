@@ -1,22 +1,24 @@
-using System.Web;
 using log4net;
 
 namespace LegacyInventory.Core.Services
 {
-    public static class AuditLogger
+    public class AuditLogger
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(AuditLogger));
+        private readonly ILog _log;
 
-        public static void Record(string action, string details)
+        public AuditLogger(ILog log)
         {
-            var user = "anonymous";
-            var context = HttpContext.Current;
-            if (context != null && context.User != null && context.User.Identity.IsAuthenticated)
+            _log = log;
+        }
+
+        public void Record(string action, string details, string user)
+        {
+            if (string.IsNullOrEmpty(user))
             {
-                user = context.User.Identity.Name;
+                user = "anonymous";
             }
 
-            Log.InfoFormat("AUDIT user={0} action={1} details={2}", user, action, details);
+            _log.InfoFormat("AUDIT user={0} action={1} details={2}", user, action, details);
         }
     }
 }

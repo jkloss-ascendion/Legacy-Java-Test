@@ -1,6 +1,6 @@
 using System;
-using System.Configuration;
-using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace LegacyInventory.Core.Services
@@ -8,28 +8,30 @@ namespace LegacyInventory.Core.Services
     public class PriceFeedClient
     {
         private readonly string _baseUrl;
+        private readonly HttpClient _httpClient;
 
-        public PriceFeedClient()
+        public PriceFeedClient(string baseUrl, HttpClient httpClient)
         {
-            _baseUrl = ConfigurationManager.AppSettings["PriceFeedUrl"];
+            _baseUrl = baseUrl;
+            _httpClient = httpClient;
         }
 
-        public decimal? GetLatestPrice(string sku)
+        public async Task<decimal?> GetLatestPriceAsync(string sku)
         {
-            using (var client = new WebClient())
-            {
-                client.Headers[HttpRequestHeader.Accept] = "application/json";
+            var requestUrl = _baseUrl + "/prices/" + Uri.EscapeDataString(sku);
 
-                try
-                {
-                    var json = client.DownloadString(_baseUrl + "/prices/" + Uri.EscapeDataString(sku));
-                    var quote = JsonConvert.DeserializeObject<PriceQuote>(json);
-                    return quote == null ? (decimal?)null : quote.Price;
-                }
-                catch (WebException)
-                {
-                    return null;
-                }
+            try
+            {
+                var response = await _httpClient.GetAsync(requestUrl).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var quote = JsonConvert.DeserializeObject<PriceQuote>(json);
+                return quote == null ? (decimal?)null : quote.Price;
+            }
+            catch (HttpRequestException)
+            {
+                return null;
             }
         }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using LegacyInventory.Core.Data;
 using LegacyInventory.Core.Models;
@@ -13,14 +12,11 @@ namespace LegacyInventory.Core.Services
         private readonly PriceFeedClient _priceFeed;
         private readonly ProductCache _cache;
 
-        public InventoryService()
+        public InventoryService(ProductRepository repository, PriceFeedClient priceFeed, ProductCache cache)
         {
-            _repository = new ProductRepository();
-            _priceFeed = new PriceFeedClient();
-
-            var minutes = int.Parse(ConfigurationManager.AppSettings["CacheMinutes"] ?? "10");
-            var cacheFile = Path.Combine(Path.GetTempPath(), "legacy-inventory-products.bin");
-            _cache = new ProductCache(cacheFile, TimeSpan.FromMinutes(minutes));
+            _repository = repository;
+            _priceFeed = priceFeed;
+            _cache = cache;
         }
 
         public IList<Product> GetProducts()

@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
 using LegacyInventory.Core.Models;
+using Microsoft.Data.SqlClient;
 
 namespace LegacyInventory.Core.Data
 {
@@ -11,9 +10,9 @@ namespace LegacyInventory.Core.Data
     {
         private readonly string _connectionString;
 
-        public ProductRepository()
+        public ProductRepository(string connectionString)
         {
-            _connectionString = ConfigurationManager.ConnectionStrings["InventoryDb"].ConnectionString;
+            _connectionString = connectionString;
         }
 
         public IList<Product> GetAll()
